@@ -34,7 +34,6 @@ enum MoveStatus isMoveValid(char board[3][3], int move) {
     return MOVE_VALID;
 }
 
-// دالة للتحقق من امتلاء اللوحة
 enum BoardStatus isBoardFull(char board[3][3]) {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {

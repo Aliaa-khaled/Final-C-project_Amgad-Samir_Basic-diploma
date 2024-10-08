@@ -12,28 +12,24 @@ void singlePlayerMode() {
     char playerSymbol, computerSymbol;
     int currentPlayer;
 
-   do
-    {
+    do {
         printf("Choose your symbol (X or O): ");
         scanf(" %c", &playerSymbol);
         playerSymbol = toupper(playerSymbol);
-        if (playerSymbol == 'X')
-        {
+
+        if (playerSymbol == 'X') {
             computerSymbol = 'O';
-        }
-        else if (playerSymbol == 'O')
-        {
+        } else if (playerSymbol == 'O') {
             computerSymbol = 'X';
-        }
-        else
-        {
+        } else if (playerSymbol == 'Q' || playerSymbol == 'q') {
+            printf("You chose to quit the game. Exiting...\n");
+            return;  // للخروج من اللعبة إذا أدخل اللاعب Q
+        } else {
             printf("Invalid choice. Please choose X or O.\n");
         }
-    }
-    while (playerSymbol != 'X' && playerSymbol != 'O');
+    } while (playerSymbol != 'X' && playerSymbol != 'O');
 
     currentPlayer = 1;
-
     GameState gameState = ONGOING;
 
     printf("Welcome to Tic-Tac-Toe!\n");
@@ -43,14 +39,30 @@ void singlePlayerMode() {
     {
         if (currentPlayer == 1)
         {
-            int move;
+            char move;
             enum MoveStatus moveStatus;
 
             do
             {
-                printf("Enter your move (1-9): ");
-                scanf("%d", &move);
-                moveStatus = isMoveValid(board, move);
+                printf("Enter your move (1-9) or 'q' to quit: ");
+                scanf(" %c", &move);
+
+                if (move == 'q' || move == 'Q')
+                {
+                    printf("You chose to quit the game. Exiting...\n");
+                    return;
+                }
+
+                if (move >= '1' && move <= '9')
+                {
+                    moveStatus = isMoveValid(board, move - '0');
+                }
+                else
+                {
+                    printf("Invalid input. Please enter a number between 1 and 9 or 'q' to quit.\n");
+                    moveStatus = MOVE_OUT_OF_RANGE;
+                }
+
                 if (moveStatus == MOVE_OUT_OF_RANGE)
                 {
                     printf("Move is out of range. Try again.\n");
@@ -62,10 +74,10 @@ void singlePlayerMode() {
             }
             while (moveStatus != MOVE_VALID);
 
-            int row = (move - 1) / 3;
-            int col = (move - 1) % 3;
+            int row = (move - '1') / 3;
+            int col = (move - '1') % 3;
             board[row][col] = playerSymbol;
-            addMove(1, move);
+            addMove(1, move - '0');
 
             char playerChoice;
             printf("Do you want to undo the last move? (y/n): ");
@@ -82,12 +94,10 @@ void singlePlayerMode() {
         }
         else
         {
-
             printf("Computer (%c)'s turn:\n", computerSymbol);
             computerMove(board, computerSymbol, playerSymbol);
             currentPlayer = 1;
         }
-
         displayBoard(board);
 
         enum WinStatus winStatus = checkWin(board, currentPlayer == 0 ? playerSymbol : computerSymbol);
@@ -115,7 +125,9 @@ void singlePlayerMode() {
     {
         printf("It's a draw!\n");
     }
+
 }
+
 int minimax(char board[3][3], int depth, bool isMax, char computerSymbol, char playerSymbol)
 {
     if (checkWin(board, computerSymbol) != WIN_NONE)
@@ -133,7 +145,8 @@ int minimax(char board[3][3], int depth, bool isMax, char computerSymbol, char p
         return 0;
     }
 
-    if (isMax) {
+    if (isMax)
+    {
         int bestVal = -1000;
         for (int i = 0; i < 3; i++)
         {

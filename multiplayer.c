@@ -1,40 +1,54 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "game.h"
 
 void multiplayerMode() {
     char board[3][3];
     int currentPlayer = 1;
-    int move;
-    char symbolPlayer1;
+    char move;
+    char symbolPlayer1, symbolPlayer2;
 
     initializeBoard(board);
 
-    printf("Player 1, choose your symbol (X or O): ");
-    scanf(" %c", &symbolPlayer1);
-    while (symbolPlayer1 != 'X' && symbolPlayer1 != 'O') {
-        printf("Invalid symbol. Choose 'X' or 'O': ");
+    do {
+        printf("Choose your symbol (X or O): ");
         scanf(" %c", &symbolPlayer1);
-    }
+        symbolPlayer1 = toupper(symbolPlayer1);
 
-    char symbolPlayer2 = (symbolPlayer1 == 'X') ? 'O' : 'X';
+        if (symbolPlayer1 == 'X') {
+            symbolPlayer2 = 'O';
+        } else if (symbolPlayer1 == 'O') {
+            symbolPlayer2 = 'X';
+        } else if (symbolPlayer1 == 'Q' || symbolPlayer1 == 'q') {
+            printf("You chose to quit the game. Exiting...\n");
+            return;
+        } else {
+            printf("Invalid choice. Please choose X or O.\n");
+        }
+    } while (symbolPlayer1 != 'X' && symbolPlayer1 != 'O');
 
     while (true) {
         displayBoard(board);
 
         printf("Player %d's turn (%c):\n", currentPlayer, (currentPlayer == 1) ? symbolPlayer1 : symbolPlayer2);
-        printf("Enter your move (1-9): ");
-        scanf("%d", &move);
+        printf("Enter your move (1-9) or 'q' to quit: ");
+        scanf(" %c", &move);
 
-        if (isMoveValid(board, move) != MOVE_VALID) {
+        if (move == 'q' || move == 'Q') {
+            printf("You chose to quit the game. Exiting...\n");
+            return;
+        }
+
+        if (isMoveValid(board, move - '0') != MOVE_VALID) {
             printf("Invalid move! Try again.\n");
             continue;
         }
 
-        int row = (move - 1) / 3;
-        int col = (move - 1) % 3;
+        int row = (move - '1') / 3;
+        int col = (move - '1') % 3;
         board[row][col] = (currentPlayer == 1) ? symbolPlayer1 : symbolPlayer2;
 
-        addMove(currentPlayer, move);
+        addMove(currentPlayer, move - '0');
 
         if (checkWin(board, (currentPlayer == 1) ? symbolPlayer1 : symbolPlayer2) != WIN_NONE) {
             displayBoard(board);
@@ -65,5 +79,4 @@ void multiplayerMode() {
 
         currentPlayer = (currentPlayer == 1) ? 0 : 1;
     }
-
 }
